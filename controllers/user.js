@@ -125,9 +125,80 @@ const login = (req, res) => {
 
 }
 
+const getUser = (req, res) => {
+    // Recibir el paremetro del id de usuario por la url
+    const { id } = req.params;
+
+    if (!id) {
+        res.status(400).send({
+            status: 'error',
+            message: 'Debe enviar el id del usuario',
+            id
+        });
+    }
+
+    // Consulta para sacar los datos del usuario
+    User.findById(id)
+        // Quita los campos password y role del resultado
+        .select({ password: 0, role: 0 })
+        .then(userStored => {
+            // Devolver el resultado
+            // Posteriormente: Devolver información de follows
+            res.status(200).send({
+                status: 'success',
+                message: 'Usuario cargado con éxito!!',
+                userStored
+            });
+        })
+        .catch(error => {
+            res.status(404).send({
+                status: 'error',
+                message: `No se encontraron datos con el id ${id}`,
+                error
+            });
+        });
+}
+
+const list = (req, res) => {
+    // controlar en que página estamos
+    let pageDefault = 1;
+    let { page } = req.params;
+
+    if (!page) {
+        page = pageDefault;
+    }
+
+    page = parseInt(page);
+    // Consulta con mongoose paginate
+    let itemsPerPage = 5;
+    
+    User.paginate({}, { page, limit: itemsPerPage })
+        .then( result => {
+                return res.status(200).send({
+                    status: 'success',
+                    message: 'Listado de usuarios',
+                    page,
+                    users: result.docs,
+                    total: result.totalDocs,
+                    itemsPerPage,
+                    pages: result.totalPages
+                });
+            }
+        )
+        .catch(error => {
+            return res.status(404).send({
+                status: 'error',
+                message: 'No hay usuarios disponibles',
+                error
+            });
+        });
+}
+
 // Exporar acciones
 module.exports = {
     pruebaUser,
     register,
-    login
+    login,
+    getUser,
+    list
 }

@@ -26,7 +26,6 @@ exports.auth = (req, res, next) => {
 
         // Comprobar expiración del token
         if (payload.exp <= moment().unix()) {
-            console.log('Expiro!!')
             return res.status(401).send({
                 status: 'error',
                 message: 'Token expirado'

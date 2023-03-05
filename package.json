@@ -24,7 +24,7 @@
     "jwt-simple": "^0.5.6",
     "moment": "^2.29.4",
     "mongoose": "^7.0.0",
-    "mongoose-pagination": "^1.0.0",
+    "mongoose-paginate-v2": "^1.7.1",
     "multer": "^1.4.5-lts.1",
     "validator": "^13.9.0"
   },
