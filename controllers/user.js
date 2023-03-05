@@ -171,19 +171,19 @@ const list = (req, res) => {
     page = parseInt(page);
     // Consulta con mongoose paginate
     let itemsPerPage = 5;
-    
+
     User.paginate({}, { page, limit: itemsPerPage })
-        .then( result => {
-                return res.status(200).send({
-                    status: 'success',
-                    message: 'Listado de usuarios',
-                    page,
-                    users: result.docs,
-                    total: result.totalDocs,
-                    itemsPerPage,
-                    pages: result.totalPages
-                });
-            }
+        .then(result => {
+            return res.status(200).send({
+                status: 'success',
+                message: 'Listado de usuarios',
+                page,
+                users: result.docs,
+                total: result.totalDocs,
+                itemsPerPage,
+                pages: result.totalPages
+            });
+        }
         )
         .catch(error => {
             return res.status(404).send({
@@ -194,11 +194,79 @@ const list = (req, res) => {
         });
 }
 
+const update = (req, res) => {
+    // Recoger info del usaurio a actualizar
+    let userIdentity = req.user;
+    let user_to_update = req.body;
+
+    //Limpiar datos del usuario
+    delete userIdentity.password;
+    delete userIdentity.image;
+    delete userIdentity.iat;
+    delete userIdentity.exp;
+    delete userIdentity.role;
+
+    //Comporbar si el usuario ya existe
+    User.find({
+        $or: [
+            { email: user_to_update.email.toLowerCase() },
+            { nick: user_to_update.nick.toLowerCase() }
+        ]
+    })
+        .then(async (users) => {
+
+            let userIsSet = false;
+
+            users.forEach(user => {
+                if (user && user._id.valueOf() !== userIdentity.id) {
+                    userIsSet = true;
+                }
+            })
+
+            if (userIsSet) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'El usuario ya existe, email o nick ya fueron registrados en la base de datos'
+                })
+            }
+
+            if (user_to_update.password) {
+                // Cifrar contraseña
+                // El 10 indica el número de veces que se cifrará o encryotará
+                let pwd = await bcrypt.hash(user_to_update.password, 10);
+                user_to_update.password = pwd;
+            }
+
+            // Buscar y actualizar
+            User.findByIdAndUpdate(userIdentity.id ,user_to_update, {new: true})
+                .then(userStored => {
+                    return res.status(200).json({
+                        status: 'success',
+                        message: 'Acción de actualizar usuario',
+                        user: userStored
+                    });
+                })
+                .catch(error => {
+                    return res.status(500).send({
+                        status: 'error',
+                        message: `Error al actualizar el usuario ${error}`
+                    })
+                });
+        })
+        .catch(error => {
+            return res.status(500).json({
+                status: 'error',
+                message: `Error en la consulta de datos: ${error}`
+            })
+        });
+}
+
 // Exporar acciones
 module.exports = {
     pruebaUser,
     register,
     login,
     getUser,
-    list
+    list,
+    update
 }

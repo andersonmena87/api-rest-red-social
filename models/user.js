@@ -34,6 +34,7 @@ const UserSchema = Schema({
     }
 });
 
+//Adicionando paginador al Esquema de usuario
 UserSchema.plugin(mongoosePaginate);
 
 //model(nombreModelo, Esquema, nombreColleccion(opcional))
