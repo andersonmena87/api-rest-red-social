@@ -1,4 +1,3 @@
-//const {Schema, model, Mongoose} = require('mongoose');
 const { Schema, model } = require('mongoose');
 const mongoosePaginate = require('mongoose-paginate-v2');
 
@@ -39,4 +38,4 @@ UserSchema.plugin(mongoosePaginate);
 
 //model(nombreModelo, Esquema, nombreColleccion(opcional))
 module.exports = model('User', UserSchema, 'users');
-                //Si no se pone el tercer parametro por defecto moongose pondra users -> Pluraliza el primer parametro   
+//Si no se pone el tercer parametro por defecto moongose pondra users -> Pluraliza el primer parametro   
