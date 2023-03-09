@@ -105,7 +105,6 @@ const login = (req, res) => {
             // Conseguir el Token
             const token = jwt.createToken(user);
 
-
             // Devolver Datos el usuario
             return res.status(200).send({
                 status: 'success',
