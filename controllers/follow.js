@@ -2,6 +2,9 @@
 const Follow = require('../models/follow');
 const User = require('../models/user');
 
+// Importar servicio
+const followService = require('../services/followService');
+
 // Acciones de prueba
 const pruebaFollow = (req, res) => {
     return res.status(200).send({
@@ -109,9 +112,10 @@ const following = (req, res) => {
                 },
             ]
         })
-        .then(result => {
+        .then(async (result) => {
             // Listado de usuarios
-            // Sacar un array de ids de los usuarios que me siguen y los que sigo 
+            // Sacar un array de ids de los usuarios que me siguen y los que sigo
+            let followsUserId = await followService.folloUserIds(req.user.id);
 
             return res.status(200).send({
                 status: 'success',
@@ -119,17 +123,75 @@ const following = (req, res) => {
                 follows: result.docs,
                 total: result.totalDocs,
                 itemsPerPage,
-                pages: result.totalPages
+                pages: result.totalPages,
+                user_following: followsUserId.following,
+                user_follow_me: followsUserId.followers
+            });
+        })
+        .catch(error => {
+            res.status(400).send({
+                status: 'error',
+                message: 'Listado no cargado',
+                error
             });
         });
 }
 
 // Acción de listado de usuarios que me siguen
 const followers = (req, res) => {
-    return res.status(200).send({
-        status: 'success',
-        message: 'Listado de usuarios que me siguen',
-    });
+    // Sacar el id del usuario identificado
+    let userId = req.user.id;
+
+    // Comprobar si me llega el id para parametro en url
+    if (req.params.id) userId = req.params.id;
+
+    // Comprobar si me llega la página, si no la pagina 1
+    let page = 1;
+
+    if (req.params.page) page = req.params.page;
+
+    // Usuarios por página quiero mostrar
+    const itemsPerPage = 5;
+
+    Follow
+        .paginate({ followed: userId }, {
+            page,
+            limit: itemsPerPage,
+            populate: [
+                {
+                    path: 'user',
+                    select: '-password -role -__v'
+                },
+                {
+                    path: 'followed',
+                    select: '-password -role -__v'
+                },
+            ]
+        })
+        .then(async (result) => {
+            // Listado de usuarios
+            // Sacar un array de ids de los usuarios que me siguen y los que sigo
+            let followsUserId = await followService.folloUserIds(req.user.id);
+
+            return res.status(200).send({
+                status: 'success',
+                message: 'Listado de usuarios que me siguen',
+                follows: result.docs,
+                total: result.totalDocs,
+                itemsPerPage,
+                pages: result.totalPages,
+                user_identity: req.user,
+                user_following: followsUserId.following,
+                user_follow_me: followsUserId.followers
+            });
+        }).catch(error => {
+            res.status(400).send({
+                status: 'error',
+                message: 'Listado no cargado',
+                error
+            });
+        });
+
 }
 
 // Exporar acciones

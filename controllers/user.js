@@ -2,6 +2,7 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const jwt = require('../services/jwt');
+const followService = require('../services/followService');
 
 // Librerías de nodeJS
 const fs = require('fs');
@@ -144,13 +145,19 @@ const getUser = (req, res) => {
     User.findById(id)
         // Quita los campos password y role del resultado
         .select({ password: 0, role: 0 })
-        .then(userStored => {
+        .then(async (userStored) => {
             // Devolver el resultado
             // Posteriormente: Devolver información de follows
+
+            // Info seguimiento
+            const followInfo = await followService.followThisUser(req.user.id, id);
+
             res.status(200).send({
                 status: 'success',
                 message: 'Usuario cargado con éxito!!',
-                userStored
+                userStored,
+                followwing: followInfo.following,
+                follower: followInfo.follower
             });
         })
         .catch(error => {
@@ -176,7 +183,11 @@ const list = (req, res) => {
     let itemsPerPage = 5;
 
     User.paginate({}, { page, limit: itemsPerPage })
-        .then(result => {
+        .then(async (result) => {
+
+            // Sacar un array de ids de los usuarios que me siguen y los que sigo
+            let followsUserId = await followService.folloUserIds(req.user.id);
+
             return res.status(200).send({
                 status: 'success',
                 message: 'Listado de usuarios',
@@ -184,7 +195,9 @@ const list = (req, res) => {
                 users: result.docs,
                 total: result.totalDocs,
                 itemsPerPage,
-                pages: result.totalPages
+                pages: result.totalPages,
+                user_following: followsUserId.following,
+                user_follow_me: followsUserId.followers
             });
         }
         )
