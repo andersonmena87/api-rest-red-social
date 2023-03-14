@@ -2,7 +2,7 @@
 const jwt = require('jwt-simple');
 const moment = require('moment');
 
-//Clave sercreta
+//Clave secreta
 const secret = 'CLAVE_SECRETA_RED_SOLCIAL_10201020';
 
 // Crear una función para generar tokens

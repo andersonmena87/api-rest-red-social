@@ -19,7 +19,6 @@ exports.auth = (req, res, next) => {
     // Expresión regular para reemplazar ' y " por vacio del token
     let token = req.headers.authorization.replace(/['"]+/g, '');
 
-
     // Decodificar el token
     try {
         let payload = jwt.decode(token, secret);
