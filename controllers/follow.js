@@ -1,4 +1,5 @@
 // Importar dependencias
+const Messages = require('../utilities/messages.json');
 const Follow = require('../models/follow');
 const User = require('../models/user');
 
@@ -30,15 +31,15 @@ const save = (req, res) => {
     userToFollowed.save()
         .then(userFollowedStored => {
             return res.status(200).send({
-                status: 'success',
-                message: 'Follow guardado con exito',
+                status: Messages.success,
+                message: 'Follow guardado con éxito',
                 indentity,
                 userFollowedStored
             });
         })
         .catch(error => {
             return res.status(200).send({
-                status: 'error',
+                status: Messages.error,
                 message: 'No se ha podido seguir al usuario',
                 error
             });
@@ -63,13 +64,13 @@ const unfollow = (req, res) => {
         })
         .then(userFollowedDeleted => {
             return res.status(200).send({
-                status: 'success',
+                status: Messages.success,
                 message: 'Follow eliminado correctamente',
             });
         })
         .catch(error => {
             return res.status(500).send({
-                status: 'error',
+                status: Messages.error,
                 message: 'Error al dejar de seguir',
                 error
             });
@@ -118,7 +119,7 @@ const following = (req, res) => {
             let followsUserId = await followService.folloUserIds(req.user.id);
 
             return res.status(200).send({
-                status: 'success',
+                status: Messages.success,
                 message: 'Listado de usuarios que estoy siguiendo',
                 follows: result.docs,
                 total: result.totalDocs,
@@ -130,7 +131,7 @@ const following = (req, res) => {
         })
         .catch(error => {
             res.status(400).send({
-                status: 'error',
+                status: Messages.error,
                 message: 'Listado no cargado',
                 error
             });
@@ -174,7 +175,7 @@ const followers = (req, res) => {
             let followsUserId = await followService.folloUserIds(req.user.id);
 
             return res.status(200).send({
-                status: 'success',
+                status: Messages.success,
                 message: 'Listado de usuarios que me siguen',
                 follows: result.docs,
                 total: result.totalDocs,
@@ -186,7 +187,7 @@ const followers = (req, res) => {
             });
         }).catch(error => {
             res.status(400).send({
-                status: 'error',
+                status: Messages.error,
                 message: 'Listado no cargado',
                 error
             });

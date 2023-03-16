@@ -1,4 +1,5 @@
 // Importar dependencias y modulos
+const Messages = require('../utilities/messages.json');
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const jwt = require('../services/jwt');
@@ -24,7 +25,7 @@ const register = (req, res) => {
     // Comprobar que llega bien (Validación)
     if (!params.name || !params.email || !params.password || !params.nick) {
         return res.status(400).json({
-            status: 'error',
+            status: Messages.error,
             message: 'Faltan datos por ingresar'
         });
     }
@@ -39,7 +40,7 @@ const register = (req, res) => {
         .then(async (users) => {
             if (users && users.length > 0) {
                 return res.status(400).json({
-                    status: 'error',
+                    status: Messages.error,
                     message: 'El usuario ya existe, email o nick ya fueron registrados en la base de datos'
                 })
             }
@@ -56,21 +57,21 @@ const register = (req, res) => {
             user_to_save.save()
                 .then(userStored => {
                     return res.status(200).json({
-                        status: 'success',
+                        status: Messages.success,
                         message: 'Acción de registro de usuarios',
                         user: userStored
                     });
                 })
                 .catch(error => {
                     return res.status(500).send({
-                        status: 'error',
+                        status: Messages.error,
                         message: `Error al guardar el usuario ${error}`
                     })
                 });
         })
         .catch(error => {
             return res.status(500).json({
-                status: 'error',
+                status: Messages.error,
                 message: `Error en la consulta de datos: ${error}`
             })
         });
@@ -82,7 +83,7 @@ const login = (req, res) => {
 
     if (!params.email || !params.password) {
         return res.status(400).send({
-            status: 'error',
+            status: Messages.error,
             message: 'Faltan datos por enviar'
         });
     }
@@ -98,7 +99,7 @@ const login = (req, res) => {
 
             if (!pwd) {
                 return res.status(400).send({
-                    status: 'error',
+                    status: Messages.error,
                     message: 'No te has identificado correctamente',
                 })
             }
@@ -108,7 +109,7 @@ const login = (req, res) => {
 
             // Devolver Datos el usuario
             return res.status(200).send({
-                status: 'success',
+                status: Messages.success,
                 message: 'Te has identificado correctamente',
                 user: {
                     id: user._id,
@@ -121,7 +122,7 @@ const login = (req, res) => {
         .catch(error => {
 
             return res.status(404).send({
-                status: 'error',
+                status: Messages.error,
                 message: 'No existe el usuario',
                 error
             })
@@ -135,7 +136,7 @@ const getUser = (req, res) => {
 
     if (!id) {
         res.status(400).send({
-            status: 'error',
+            status: Messages.error,
             message: 'Debe enviar el id del usuario',
             id
         });
@@ -153,7 +154,7 @@ const getUser = (req, res) => {
             const followInfo = await followService.followThisUser(req.user.id, id);
 
             res.status(200).send({
-                status: 'success',
+                status: Messages.success,
                 message: 'Usuario cargado con éxito!!',
                 userStored,
                 followwing: followInfo.following,
@@ -162,7 +163,7 @@ const getUser = (req, res) => {
         })
         .catch(error => {
             res.status(404).send({
-                status: 'error',
+                status: Messages.error,
                 message: `No se encontraron datos con el id ${id}`,
                 error
             });
@@ -189,7 +190,7 @@ const list = (req, res) => {
             let followsUserId = await followService.folloUserIds(req.user.id);
 
             return res.status(200).send({
-                status: 'success',
+                status: Messages.success,
                 message: 'Listado de usuarios',
                 page,
                 users: result.docs,
@@ -203,7 +204,7 @@ const list = (req, res) => {
         )
         .catch(error => {
             return res.status(404).send({
-                status: 'error',
+                status: Messages.error,
                 message: 'No hay usuarios disponibles',
                 error
             });
@@ -241,7 +242,7 @@ const update = (req, res) => {
 
             if (userIsSet) {
                 return res.status(400).json({
-                    status: 'error',
+                    status: Messages.error,
                     message: 'El usuario ya existe, email o nick ya fueron registrados en la base de datos'
                 })
             }
@@ -257,21 +258,21 @@ const update = (req, res) => {
             User.findByIdAndUpdate(userIdentity.id, user_to_update, { new: true })
                 .then(userStored => {
                     return res.status(200).json({
-                        status: 'success',
+                        status: Messages.success,
                         message: 'Acción de actualizar usuario',
                         user: userStored
                     });
                 })
                 .catch(error => {
                     return res.status(500).send({
-                        status: 'error',
+                        status: Messages.error,
                         message: `Error al actualizar el usuario ${error}`
                     })
                 });
         })
         .catch(error => {
             return res.status(500).json({
-                status: 'error',
+                status: Messages.error,
                 message: `Error en la consulta de datos: ${error}`
             })
         });
@@ -282,7 +283,7 @@ const upload = (req, res) => {
     // Recoger el fichero de imagen y comprobar que existe
     if (!req.file) {
         return res.status(404).json({
-            status: 'error',
+            status: Messages.error,
             message: 'La petición no incluye una imagen',
         })
     }
@@ -305,7 +306,7 @@ const upload = (req, res) => {
         fs.unlinkSync(filePath);
 
         return res.status(400).send({
-            status: 'error',
+            status: Messages.error,
             message: 'Extensión del archivo invalida'
         });
 
@@ -318,14 +319,14 @@ const upload = (req, res) => {
         .then(user_update => {
             // Devolver respuesta
             return res.status(200).json({
-                status: 'success',
+                status: Messages.success,
                 message: 'Subida de imagenes',
                 user: user_update,
             })
         })
         .catch(error => {
             return res.status(500).send({
-                status: 'error',
+                status: Messages.error,
                 message: 'Error en la subida del archivo'
             });
         });
@@ -342,7 +343,7 @@ const avatar = (req, res) => {
     fs.stat(filePath, (error, exists) => {
         if (!exists) {
             return res.status(404).send({
-                status: 'error',
+                status: Messages.error,
                 message: 'No existe la imagen'
             });
         }
