@@ -4,6 +4,8 @@ const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const jwt = require('../services/jwt');
 const followService = require('../services/followService');
+const Follow = require('../models/follow');
+const Publications = require('../models/publication');
 
 // Librerías de nodeJS
 const fs = require('fs');
@@ -183,7 +185,7 @@ const list = (req, res) => {
     // Consulta con mongoose paginate
     let itemsPerPage = 5;
 
-    User.paginate({}, { page, limit: itemsPerPage })
+    User.paginate({}, { page, limit: itemsPerPage, select: '-role -password -__v -email' })
         .then(async (result) => {
 
             // Sacar un array de ids de los usuarios que me siguen y los que sigo
@@ -196,6 +198,7 @@ const list = (req, res) => {
                 users: result.docs,
                 total: result.totalDocs,
                 itemsPerPage,
+                page: result.page,
                 pages: result.totalPages,
                 user_following: followsUserId.following,
                 user_follow_me: followsUserId.followers
@@ -252,6 +255,9 @@ const update = (req, res) => {
                 // El 10 indica el número de veces que se cifrará o encryotará
                 let pwd = await bcrypt.hash(user_to_update.password, 10);
                 user_to_update.password = pwd;
+            }else {
+                // Si la contraseña llega vacia se elimina la propiedad password del objeto que enviara a actualizar
+                delete user_to_update.password;
             }
 
             // Buscar y actualizar
@@ -312,8 +318,6 @@ const upload = (req, res) => {
 
     }
 
-
-
     // Si si es correcta, guardar en bbdd
     User.findByIdAndUpdate(req.user.id, { image: file.filename }, { new: true })
         .then(user_update => {
@@ -354,6 +358,32 @@ const avatar = (req, res) => {
 
 }
 
+const counters = async(req, res) => {
+    let id = req.params.id;
+
+    if (!id) id = req.user.id;
+
+    try {
+        // count devuelve el total de registros de la consulta
+        const followind = await Follow.count({ user: id});
+        const followed = await Follow.count({ followed: id});
+        const publications = await Publications.count({ user: id});
+    
+        res.status(200).send({
+            status: Messages.success,
+            userId: id,
+            followind,
+            followed,
+            publications
+        });    
+    } catch (error) {
+        res.status(500).send({
+            status: Messages.error,
+            error
+        });
+    }
+}
+
 // Exporar acciones
 module.exports = {
     pruebaUser,
@@ -363,5 +393,6 @@ module.exports = {
     list,
     update,
     upload,
-    avatar
+    avatar,
+    counters
 }

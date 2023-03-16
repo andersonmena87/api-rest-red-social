@@ -12,6 +12,7 @@ const PublicationSchema = Schema({
     },
     file: {
         type: String,
+        default: ''
     },
     create_at: {
         type: Date,

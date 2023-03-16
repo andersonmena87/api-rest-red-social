@@ -23,7 +23,8 @@ router.post('/login', UserController.login);
 router.get('/user/:id', auth, UserController.getUser);
 router.get('/list/:page?', auth, UserController.list);
 router.put('/update', auth, UserController.update);
-router.get('/avatar/:file', auth, UserController.avatar);
+router.get('/avatar/:file', UserController.avatar);
+router.get('/counters/:id?', auth, UserController.counters);
 
 // Para ejecutar varios middlewreas se pasan como en un arreglo
 router.post('/upload', [auth, uploads.single('file0')], UserController.upload);

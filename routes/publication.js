@@ -23,7 +23,7 @@ router.get('/list/:page?', auth, PublicationController.list);
 router.delete('/publication/:id', auth, PublicationController.deletePublication);
 router.get('/user/:id?/:page?', auth, PublicationController.publicationsByUser);
 router.post('/upload/:id', [auth, uploads.single('file0')], PublicationController.upload);
-router.get('/image-publication/:file', auth, PublicationController.imagePublication);
+router.get('/image-publication/:file', PublicationController.imagePublication);
 
 
 // Ruta de prueba

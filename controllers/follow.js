@@ -105,7 +105,7 @@ const following = (req, res) => {
             populate: [
                 {
                     path: 'user',
-                    select: '-password -role -__v'
+                    select: '-password -role -__v -email'
                 },
                 {
                     path: 'followed',
@@ -124,6 +124,7 @@ const following = (req, res) => {
                 follows: result.docs,
                 total: result.totalDocs,
                 itemsPerPage,
+                page: result.page,
                 pages: result.totalPages,
                 user_following: followsUserId.following,
                 user_follow_me: followsUserId.followers
@@ -161,11 +162,11 @@ const followers = (req, res) => {
             populate: [
                 {
                     path: 'user',
-                    select: '-password -role -__v'
+                    select: '-password -role -__v -email'
                 },
                 {
                     path: 'followed',
-                    select: '-password -role -__v'
+                    select: '-password -role -__v -email'
                 },
             ]
         })
@@ -180,6 +181,7 @@ const followers = (req, res) => {
                 follows: result.docs,
                 total: result.totalDocs,
                 itemsPerPage,
+                page: result.page,
                 pages: result.totalPages,
                 user_identity: req.user,
                 user_following: followsUserId.following,
