@@ -321,6 +321,7 @@ const upload = (req, res) => {
 
     // Si si es correcta, guardar en bbdd
     User.findByIdAndUpdate(req.user.id, { image: file.filename }, { new: true })
+        .select({ password: 0, role: 0 })
         .then(user_update => {
             // Devolver respuesta
             return res.status(200).json({
