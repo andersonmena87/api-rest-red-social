@@ -262,10 +262,11 @@ const update = (req, res) => {
 
             // Buscar y actualizar
             User.findByIdAndUpdate(userIdentity.id, user_to_update, { new: true })
+                .select({ password: 0, role: 0 })
                 .then(userStored => {
                     return res.status(200).json({
                         status: Messages.success,
-                        message: 'Acción de actualizar usuario',
+                        message: 'Usuario actualizado',
                         user: userStored
                     });
                 })
