@@ -1,13 +1,18 @@
-// Importar dependencias y modulos
+/** Importar dependencias y modulos */
 const Messages = require('../utilities/messages.json');
 const bcrypt = require('bcrypt');
+
+/** Importar modelos */
 const User = require('../models/user');
-const jwt = require('../services/jwt');
-const followService = require('../services/followService');
 const Follow = require('../models/follow');
 const Publications = require('../models/publication');
 
-// Librerías de nodeJS
+/** Importar servicios */
+const jwt = require('../services/jwt');
+const followService = require('../services/followService');
+const validate = require('../helpers/validate');
+
+/** Librerías de nodeJS */ 
 const fs = require('fs');
 const path = require('path');
 
@@ -32,6 +37,17 @@ const register = (req, res) => {
         });
     }
 
+    /** Validación avanzada */ 
+    try {
+        validate(params);    
+    } catch (error) {
+        return res.status(500).json({
+            status: Messages.error,
+            message: 'Validación no superada',
+            error: 'Error en validación ' + error
+        });
+    }
+    
     // Control de usuarios duplicados
     User.find({
         $or: [
