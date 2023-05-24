@@ -3,6 +3,9 @@ const connection  = require('./database/connection');
 const express = require('express');
 const cors = require('cors');
 
+// Manejador de variables de entorno
+if(process.env.NODE_ENV !== 'production') require('dotenv').config();
+
 // Mensaje de bienvenida
 console.log('API NODE para RED SOCIAL ARRANCADA!');
 
